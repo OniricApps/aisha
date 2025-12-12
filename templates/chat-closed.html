@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/static/main.css">
+    <link rel="stylesheet" href="/static/products.css">
+    <title>Aisha - {{ chat_title }}</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Matomo -->
+<script>
+  var _paq = window._paq = window._paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//oniricapps.com/matomo/";
+    _paq.push(['setTrackerUrl', u+'matomo.php']);
+    _paq.push(['setSiteId', '2']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<!-- End Matomo Code -->
+</head>
+<body>
+    <main class="block-main">
+        <div class="block-top">
+            <a href="/" class="top-menu-item"><img src="/static/mini-logo-aisha.png" alt="aisha"></a>
+            <a href="/" class="top-menu-item">
+                <p>aisha: <strong>a</strong>rtificial <strong>i</strong>ntelligence <strong>sh</strong>opping <strong>a</strong>ssistant.</p>
+            </a>
+            <div class="top-menu-item">
+                <a href="/new-chat"><img src="/static/new-chat.png" alt="nuevo chat" title="nuevo chat"></a>
+                <a href="/chats-list"><img src="/static/chat-list.png" alt="chats" title="chats"></a>
+                <img src="/static/share.png" alt="compartir" title="compartir chat" onclick="shareChat();">
+            </div>
+        </div>
+        <div class="block-center-column">
+            <section class="block-chat">
+                <div class="block-chat-section">
+                    <div id="chat-view" class="block-chat-view">
+                        <p class="role-name">Aisha</p>
+                        <div class="bot-container">
+                            <div class="bot-msg">¡Hola! Soy Aisha, tu asistente de compras personal. ¿En qué puedo ayudarte hoy?</div>
+                        </div>
+
+                        {% for msg in chat_history %}
+                            {% if msg['role'] == 'user' %}
+                        <p class="role-name">&nbsp;</p>
+                        <div class="your-container">
+                            <div class="your-msg">{{ msg['msg'] | safe }}</div>
+                        </div>
+                            {% else %}
+                        <p class="role-name">Aisha</p>
+                        <div class="bot-container">
+                            <div class="bot-msg">{{ msg['msg'] | safe }}</div>
+                        </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% if chat_state == 'CLOSED' %}
+                    <p>Chat cerrado. ¡Abre un <a href="/new-chat">nuevo chat</a> para hablar con Aisha!</p>
+                    {% endif %}
+                    </div>
+                </div>
+                <div class="block-type-section">
+                    <div id="tags-input" class="block-tags-input">
+                        <ul id="tags"></ul>
+                    </div>
+                     <div class="block-input-and-button">
+                         <div>
+                    <p>Chat cerrado. ¡Abre un <a href="/new-chat">nuevo chat</a> para hablar con Aisha!</p></div>
+
+                     </div>
+                </div>
+
+            </section>
+            <div class="floating-right-down-button"><a href="/new-chat"><img src="/static/new-chat.png" alt="nuevo chat" title="nuevo chat"></a></div>
+        </div>
+        <div class="block-footer">
+                <div class="block-footer-content">
+                    <div class="block-footer-item">
+                        La IA puede cometer errores. Verifica la información antes de tomar decisiones.
+                    </div>
+                </div>
+            </div>
+    </main>
+
+
+    <script>
+    function shareChat() {
+        var chat_id = '{{ chat_id }}';
+        var chat_url = window.location.href;
+        var chat_title = '{{ chat_title }}';
+        var share_url = 'https://api.whatsapp.com/send?text=' + chat_title + ' ' + chat_url;
+        window.open(share_url, '_blank');
+    }
+    </script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-16939841099">
+</script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-16939841099');
+</script>
+
+</body>
+</html>

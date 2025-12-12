@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stats</title>
+    <link rel="stylesheet" href="/static/main.css">
+</head>
+<body>
+    <main class="block-main">
+        <div class="block-top">
+            <div class="top-menu-item">
+                <a href="/" ><img src="/static/mini-logo-aisha.png" alt="aisha"></a>
+            </div>
+            <div class="top-menu-item" id="top-center-text">
+            <a href="/">
+                <p>aisha: <strong>a</strong>rtificial <strong>i</strong>ntelligence <strong>sh</strong>opping <strong>a</strong>ssistant.</p>
+            </a>
+            </div>
+            <div class="top-menu-item">
+                    <a href="/new-chat"><img src="/static/new-chat.png" alt="nuevo chat"></a>
+                    <a href="/chats-list"><img src="/static/chat-list.png" alt="chats"></a>
+            </div>
+        </div>
+<div class="block-center-column">
+  <p>Daily visits</p>
+  <table>
+    <tr>
+      <th>Date</th>
+      <th>Visits</th>
+      <th>Page views</th>
+      <th>New chats</th>
+      <th>Ads</th>
+      <th>bar</th>
+    </tr>
+  {% for day in daily %}
+    <tr><td>{{ day['date'] }}</td><td>{{ day['unique_visitors'] }}</td><td>{{ day['page_views'] }}</td>
+        <td>{{ day['new_chats'] }}</td><td>{{ day['ads'] }}</td><td>
+            <div style="width: {{ 100 * day['page_views']/max_daily }}px; height: 5px; background-color: rgb(175, 238, 238);">&nbsp;</div>
+            <div style="width: {{ 100 * day['new_chats']/max_chats }}px; height: 5px; background-color: rgb(50, 50, 250);">&nbsp;</div>
+            <div style="width: {{ 100 * day['ads']/max_daily }}px; height: 5px; background-color: rgb(250, 50, 50);">&nbsp;</div>
+    </td></tr>
+  {% endfor %}
+  </table>
+  <p>Most visited pages</p>
+  <table><tr><th>URL</th><th>Visits</th><th>bar</th></tr>
+    {% for page in page_views %}
+        <tr><td><a href="http://{{ page['url'] }}" target="_blank">{{ page['url'] }}</a></td><td>{{ page['views'] }}</td><td>
+            <div style="width: {{ 100 * page['views']/max_page }}px; background-color: rgb(175, 238, 238);">&nbsp;</div>
+        </td></tr>
+    {% endfor %}
+  </table>
+  <p>Referrers</p>
+  <table><tr><th>Domain</th><th>Visits</th><th>Ads</th><th>bar</th></tr>
+    {% for page in referrers %}
+        <tr><td><a href="http://{{ page['domain'] }}" target="_blank">{{ page['domain'] }}</a></td><td>{{ page['views'] }}</td>
+            <td>{{ page['ads'] }}</td><td>
+            <div style="width: {{ 100 * page['views']/max_referrer }}px; background-color: rgb(175, 238, 238);">&nbsp;</div>
+        </td></tr>
+    {% endfor %}
+  </table>
+    <p>Ratios</p>
+    <table><tr><th>Name</th><th>Total</th><th>Ratio</th></tr>
+    {% for key, ratio in ratios.items() %}
+        <tr><td>{{ key }}</td><td>{{ ratio['total'] }}</td><td>{{ ratio['ratio'] }}</td></tr>
+    {% endfor %}
+    </table>
+</div>
+    </main>
+</body>
+</html>

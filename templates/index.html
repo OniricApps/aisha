@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/static/main.css">
+    <title>Aisha - Asistente de Compras Online con Inteligencia Artificial</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Matomo -->
+<script>
+  var _paq = window._paq = window._paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//oniricapps.com/matomo/";
+    _paq.push(['setTrackerUrl', u+'matomo.php']);
+    _paq.push(['setSiteId', '2']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<!-- End Matomo Code -->
+</head>
+<body>
+    <main class="block-main">
+        <div class="block-top">
+            <div class="top-menu-item">
+                <a href="/" ><img src="/static/mini-logo-aisha.png" alt="aisha"></a>
+            </div>
+            <div class="top-menu-item" id="top-center-text">
+            <a href="/">
+                <p>aisha: <strong>a</strong>rtificial <strong>i</strong>ntelligence <strong>sh</strong>opping <strong>a</strong>ssistant.</p>
+            </a>
+            </div>
+            <div class="top-menu-item">
+                    <a href="/new-chat"><img src="/static/new-chat.png" alt="nuevo chat"></a>
+                    <a href="/chats-list"><img src="/static/chat-list.png" alt="chats"></a>
+            </div>
+        </div>
+        <div class="block-center-column">
+            <div class="block-centered">
+                <div class="block-header">
+                    <!--<button class="block-logo"><img src="/static/favicon.png" alt="logo"></button>-->
+                    <div class="block-title"><img src="/static/aisha-logo.png" alt="Aisha"></div>
+                </div>
+            </div>
+            <div class="block-centered">
+                <div class="block-subtitle">
+                    Tu asistente personal de compras online.
+                </div>
+            </div>
+            <div class="block-centered">
+                <div class="block-suggestions">
+                    <!-- Ideas para regalos, Ayudame con un problema, busco un producte que... -->
+                    <div class="block-suggestions-title">¿En qué puedo ayudarte?</div>
+                    <div class="block-suggestions-content">
+                        <div class="block-suggestion" onclick="prefillInput('Estoy buscando un producto de las siguientes características: ');">&#128269; Busco un producto</div>
+                        <div class="block-suggestion" onclick="prefillInput('Dame ideas para un regalo');">&#127873; Ideas para regalo</div>
+                        <div class="block-suggestion" onclick="prefillInput('Necesito ayuda con un problema');">&#128295; Ayuda con un problema</div>
+                    </div>
+                </div>
+            </div>
+            <div class="block-centered">
+                <div class="block-type-section">
+                    <div id="tags-input" class="block-tags-input">
+                        <ul id="tags"></ul>
+                    </div>
+                    <div id="input-and-button" class="block-input-and-button">
+                        <input id="my-text" class="block-input-field" type="text" name="msg">
+                        <!--<textarea id="my-text" class="block-input-field" name="msg" rows="1"></textarea>-->
+                        <div id="send-button-container" class="block-send-button">
+                            <input id="send-button" class="block-arrow-right" type="button" value="" onclick="newChat();"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="block-centered">
+                <div class="block-last-chats-container">
+                    <div class="block-last-chats">
+                        <div class="block-last-chats-title">Últimas conversaciones</div>
+                        <div class="block-last-chats-content">
+                            {% for chat in last_chats %}
+                            <div class="block-last-chat">
+                                <div class="block-last-chat-title"><a href="{{ chat['url'] }}">{{ chat['title'] }}</a></div>
+                            </div>
+                            {% endfor %}
+                            <div class="block-last-chat">
+                                <div class="block-last-chat-title"><a href="/chats-list">Ver todas</a></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="block-footer">
+            <div class="block-footer-content">
+                <div class="block-footer-item">&nbsp;</div>
+                <div class="block-footer-item">
+                    <!-- <a href="/about">Acerca de</a> -->&nbsp;
+                </div>
+                <div class="block-footer-item">
+                    La IA puede cometer errores. Verifica la información antes de tomar decisiones.
+                </div>
+                <div class="block-footer-item">
+                    <!-- <a href="/terms">Términos</a> -->&nbsp;
+                </div>
+                <div class="block-footer-item">&nbsp;</div>
+            </div>
+        </div>
+    </main>
+
+    <div id="loading-spinner" class="loading-spinner" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+        var send_button = document.getElementById("send-button");
+        var send_button_circle = document.getElementById("send-button-container");
+        function disableSendButton(){
+            send_button_circle.style.backgroundColor = "rgb(220, 220, 220)";
+            send_button_circle.style.cursor = "default";
+            send_button.style.cursor = "default";
+            send_button.disabled = true;
+        }
+        function enableSendButton(){
+            send_button_circle.style.backgroundColor = "rgb(175, 238, 238)";
+            send_button_circle.style.cursor = "pointer";
+            send_button.style.cursor = "pointer";
+            send_button.disabled = false;
+        }
+
+        function prefillInput(msg) {
+            $("#my-text").val(msg);
+            enableSendButton();
+        }
+        function newChat() {
+            var msg = $("#my-text").val();
+            if (msg.length > 0) {
+                disableSendButton();
+                // show loading spinner whole screen
+                document.getElementById("loading-spinner").style.display = "flex";
+                window.location.href = "/new-chat?msg=" + msg;
+            }
+        }
+        // Once page is loaded, focus on the input field, but ensure content is none and disable send button
+        $("#my-text").val("");
+        disableSendButton();
+        $("#my-text").focus();
+        // Enable send button when my-text val is different from empty
+        $("#my-text").on("input", function() {
+            if ($("#my-text").val().length > 0) {
+                enableSendButton();
+            } else {
+                disableSendButton();
+            }
+        });
+        // when enter is pressed, send the message: call newChat()
+        $("#my-text").keypress(function(e) {
+            // shift enter and control enter adds \n
+            if (e.which == 13) {
+                if (e.shiftKey) {
+                    var text = $("#my-text").val();
+                    $("#my-text").val(text + "\n");
+                }
+                else {
+                    newChat();
+                }
+            }
+        });
+        // TODO: not working. change input text by textarea
+        // when my-text content change, add more lines if content is larger than 50
+        $("#my-text").on("input", function() {
+            var text = $("#my-text").val();
+            var lines = text.split("\n").length;
+            // if no \n in text but len is higher than 50, add more lines
+            if (lines == 1 && text.length > 50) {
+                lines = Math.ceil(text.length / 50);
+                //alert(lines);
+            }
+            $("#my-text").attr("rows", lines);
+        });
+    </script>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-16939841099">
+</script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-16939841099');
+</script>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/static/main.css">
+    <link rel="stylesheet" href="/static/products.css">
+    <title>Aisha - {{ chat_title }}</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Matomo -->
+<script>
+  var _paq = window._paq = window._paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//oniricapps.com/matomo/";
+    _paq.push(['setTrackerUrl', u+'matomo.php']);
+    _paq.push(['setSiteId', '2']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<!-- End Matomo Code -->
+</head>
+<body>
+    <main class="block-main">
+        <div class="block-top">
+            <div class="top-menu-item">
+                <a href="/" ><img src="/static/mini-logo-aisha.png" alt="aisha"></a>
+            </div>
+            <div class="top-menu-item" id="top-center-text">
+            <a href="/">
+                <p>aisha: <strong>a</strong>rtificial <strong>i</strong>ntelligence <strong>sh</strong>opping <strong>a</strong>ssistant.</p>
+            </a>
+            </div>
+            <div class="top-menu-item">
+                <a href="/new-chat"><img src="/static/new-chat.png" alt="nuevo chat" title="nuevo chat"></a>
+                <a href="/chats-list"><img src="/static/chat-list.png" alt="chats" title="chats"></a>
+                <img src="/static/share.png" alt="compartir" title="compartir chat" onclick="shareChat();">
+            </div>
+        </div>
+        <div class="block-center-column">
+            <section class="block-chat">
+                <div class="block-chat-section">
+                    <div id="chat-view" class="block-chat-view">
+                        <p class="role-name">Aisha</p>
+                        <div class="bot-container">
+                            <div class="bot-msg">¡Hola! Soy Aisha, tu asistente de compras personal. ¿En qué puedo ayudarte hoy?</div>
+                        </div>
+
+                        {% for msg in chat_history %}
+                            {% if msg['role'] == 'user' %}
+                        <p class="role-name">&nbsp;</p>
+                        <div class="your-container">
+                            <div class="your-msg">{{ msg['msg'] | safe }}</div>
+                        </div>
+                            {% else %}
+                        <p class="role-name">Aisha</p>
+                        <div class="bot-container">
+                            <div class="bot-msg">{{ msg['msg'] | safe }}</div>
+                        </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% if chat_state == 'CLOSED' %}
+                    <p>Chat cerrado. ¡Abre un <a href="/new-chat">nuevo chat</a> para hablar con Aisha!</p>
+                    {% endif %}
+                    </div>
+                </div>
+                <div class="block-type-section">
+                        <div id="tags-input" class="block-tags-input">
+                            <ul id="tags"></ul>
+                        </div>
+                        <div id="input-and-button" class="block-input-and-button">
+                            <input id="my-text" class="block-input-field" type="text" name="msg">
+                            <div id="send-button-container" class="block-send-button">
+                                <input id="send-button" class="block-arrow-right" type="button" value="" />
+                            </div>
+                        </div>
+                </div>
+
+            </section>
+        </div>
+        <div class="block-footer">
+                <div class="block-footer-content">
+                    <div class="block-footer-item">&nbsp;</div>
+                    <!-- <div class="footer-item">
+                        <a href="/about">Acerca de</a>
+                    </div>-->
+                    <div class="block-footer-item">
+                        La IA puede cometer errores. Verifica la información antes de tomar decisiones.
+                    </div>
+                    <!-- <div class="footer-item">
+                        <a href="/terms">Términos</a>
+                    </div>-->
+                    <div class="block-footer-item">&nbsp;</div>
+                </div>
+            </div>
+    </main>
+
+
+    <script>
+    function shareChat() {
+        var chat_id = '{{ chat_id }}';
+        var chat_url = window.location.href;
+        var chat_title = '{{ chat_title }}';
+        var share_url = 'https://api.whatsapp.com/send?text=' + chat_title + ' ' + chat_url;
+        window.open(share_url, '_blank');
+    }
+    function OutLinkClick(url){
+        $.get("/out", {link_id: url, chat_id: "{{chat_id}}" }).done();
+        return true;
+    }
+    var send_button = document.getElementById("send-button");
+    var send_button_circle = document.getElementById("send-button-container");
+    var chat_state = '{{ chat_state }}';
+    /*send_button.addEventListener("click", function(){
+        sendMyText();
+    });*/
+    send_button_circle.addEventListener("click", function(){
+        sendMyText();
+    });
+    function disableSendButton(){
+        send_button_circle.style.backgroundColor = "rgb(220, 220, 220)";
+        send_button_circle.style.cursor = "default";
+        send_button.style.cursor = "default";
+        send_button.disabled = true;
+    }
+    function enableSendButton(){
+        if (chat_state == 'ACTIVE') {
+            send_button_circle.style.backgroundColor = "rgb(175, 238, 238)";
+            send_button_circle.style.cursor = "pointer";
+            send_button.style.cursor = "pointer";
+            send_button.disabled = false;
+        }
+    }
+    function genMsg(){
+        var myText = $("#my-text").val();
+        // list of li elements in the tags list
+        const tags = document.getElementById('tags');
+        const tagList = tags.getElementsByTagName('li');
+        for (var i = 0; i < tagList.length; i++) {
+            var tag = tagList[i];
+            var tagText = tag.innerText;
+            // take out the X button from the tag text
+            tagText = tagText.substring(0, tagText.length - 1);
+            if (myText == ""){
+                myText = tagText;
+            }
+            else {
+                myText = tagText + ", " + myText;
+            }
+        }
+        // avoid html injection, replace '<' by '&lt;' and '>' by '&gt;'
+        myText = myText.replace(/</g, '&lt;');
+        myText = myText.replace(/>/g, '&gt;');
+        return myText;
+    }
+    function checkMyTextContent(){
+        var myText = genMsg();
+        if (myText == ""){
+            disableSendButton();
+        }
+        else{
+            enableSendButton();
+        }
+    }
+    checkMyTextContent();
+    $("#my-text").on("input", function(){
+        checkMyTextContent();
+    });
+    function getBotResponse(myText){
+        $.get("/get", {msg: myText, chat_id: "{{chat_id}}" }).done(function(data){
+            var botBubble = '<p class="role-name">Aisha</p><div class="bot-container"><div class="bot-msg">'+ data +'</div></div>';
+            $("#chat-view").append(botBubble);
+            //scroll to bottom
+            $("#chat-view").stop().animate({scrollTop: $("#chat-view")[0].scrollHeight}, 1000);
+        });
+    }
+    function writeUserBubble(myText){
+        var userBubble = '<p class="role-name">&nbsp;</p><div class="your-container"><div class="your-msg">'+ myText +'</div></div>';
+        $("#my-text").val("");
+        $("#chat-view").append(userBubble);
+        $("#chat-view").stop().animate({scrollTop: $("#chat-view")[0].scrollHeight}, 1000);
+    }
+    const tags = document.getElementById('tags');
+    function appendUserText(newText, tag_id=""){
+        /*var myText = $("#my-text").val();
+        if (myText == ""){
+            myText = newText;
+        }
+        else{
+            myText = myText + ", " + newText;
+        }
+        $("#my-text").val(myText);*/
+
+        // Create a new list item element for the tag
+        const tag = document.createElement('li');
+        if (tag_id != ""){
+            tag.id = tag_id;
+        }
+        tag.innerText = newText;
+        // Add a delete button to the tag
+        tag.innerHTML += '<button class="delete-button">X</button>';
+        // Append the tag to the tags list
+        tags.appendChild(tag);
+        checkMyTextContent();
+    }
+    // Add an event listener for click on the tags list
+    tags.addEventListener('click', function (event) {
+
+        // If the clicked element has the class 'delete-button'
+        if (event.target.classList.contains('delete-button')) {
+
+            // Remove the parent element (the tag)
+            event.target.parentNode.remove();
+        }
+    });
+    function removeUserText(toRemove){
+        var myText = $("#my-text").val();
+        myText = myText.replace(toRemove, "");
+        $("#my-text").val(myText);
+        checkMyTextContent();
+    }
+    function checkOption(elemId, option, tag_id = ""){
+        //if checked, add option to text
+        elem = document.getElementById(elemId);
+        if (elem.checked){
+            appendUserText(option, tag_id);
+        }
+        else{
+            removeUserText(option);
+        }
+    }
+    function sendMyText(){
+        if (chat_state == 'ACTIVE') {
+            //Generate message
+            var myText = genMsg();
+            if (myText == ""){
+                return;
+            }
+
+            // write user bubble
+            writeUserBubble(myText);
+
+            // reset inputs
+            $("#my-text").val("");
+            const tags = document.getElementById('tags');
+            const tagList = tags.getElementsByTagName('li');
+            const tagListCopy = Array.from(tagList);
+            const tagListLength = tagList.length;
+            for (var i = 0; i < tagListLength; i++) {
+                var tag = tagListCopy[i];
+                tag.remove();
+            }
+
+            // reset send button
+            checkMyTextContent();
+
+            // send message to bot and get response
+            getBotResponse(myText);
+        }
+    }
+    $("#my-text").keypress(function(e){
+        if (e.which == 13){
+            sendMyText();
+        }
+    });
+
+    </script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-16939841099">
+</script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-16939841099');
+</script>
+    {% if chat_state == 'ACTIVE' %}
+    <!-- Event snippet for Visualització de la pàgina conversion page -->
+<script>
+  gtag('event', 'conversion', {
+      'send_to': 'AW-16939841099/fq9TCJbV8KwaEMvsxY0_',
+      'value': 0.1,
+      'currency': 'EUR'
+  });
+</script>
+    {% endif %}
+<!-- Event snippet for Visualització de la pàgina conversion page
+In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button.
+ --><!--
+<script>
+function gtag_report_conversion(url) {
+  var callback = function () {
+    if (typeof(url) != 'undefined') {
+      window.location = url;
+    }
+  };
+  gtag('event', 'conversion', {
+      'send_to': 'AW-16939841099/fq9TCJbV8KwaEMvsxY0_',
+      'value': 1.0,
+      'currency': 'EUR',
+      'event_callback': callback
+  });
+  return false;
+}
+</script>-->
+
+</body>
+</html>
