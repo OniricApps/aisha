@@ -57,7 +57,7 @@ Demo site [aisha-on.com](https://aisha-on.com).
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/OniricApps/aisha
+git clone https://github.com/OniricApps/aisha.git
 cd aisha
 ```
 
