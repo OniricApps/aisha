@@ -57,8 +57,8 @@ Demo site [aisha-on.com](https://aisha-on.com).
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd v0.7-git
+git clone https://github.com/OniricApps/aisha
+cd aisha
 ```
 
 ### 2. Install Dependencies
